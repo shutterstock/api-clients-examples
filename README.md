@@ -16,11 +16,11 @@ Perl
 PHP
 
  * [api-php-client](https://github.com/shutterstock/api-php-client)
+ * [shutterstock-php-client](https://github.com/bbaisley/shutterstock-php-client)
 
 Ruby
 
  * [ruby-shutterstock-api](https://github.com/shutterstock/ruby-shutterstock-api)
- * [shutterstock-php-client](https://github.com/bbaisley/shutterstock-php-client)
 
 ## Examples
 
