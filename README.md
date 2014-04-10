@@ -27,4 +27,4 @@ Ruby
 
 ## Examples
 
- * [Curl PHP](https://github.com/shutterstock/api/blob/master/examples/php-curl/index.php)
+ * [PHP (cURL)](https://github.com/shutterstock/api/blob/master/examples/php-curl/index.php)
