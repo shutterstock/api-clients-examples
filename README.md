@@ -2,19 +2,25 @@
 
 This is a collection of resources for the Shutterstock API.
 
+**Sections**
+
  * [Clients](#clients)
  * [Examples](#examples)
 
 ## Clients
 
+These clients are not officially supported by Shutterstock.
+
+Feel free to [create pull request](https://help.github.com/articles/creating-a-pull-request) with a link to your open source client.
+
 Node
 
  * [node-shutterstock-api](https://github.com/shutterstock/node-shutterstock-api)
- * [shutterstock.js](https://github.com/silas/shutterstock.js)
+ * [shutterstock.js](https://github.com/silas/shutterstock.js) (MIT)
 
 Perl
 
- * [WebService-Shutterstock](http://search.cpan.org/~bphillips/WebService-Shutterstock/)
+ * [WebService-Shutterstock](http://search.cpan.org/~bphillips/WebService-Shutterstock/) (GNU or Artistic License)
 
 PHP
 
