@@ -2,16 +2,12 @@
 
 This is a collection of resources for the Shutterstock API.
 
-**Sections**
-
  * [Clients](#clients)
  * [Examples](#examples)
 
 ## Clients
 
-These clients are not officially supported by Shutterstock.
-
-Feel free to [create pull request](https://help.github.com/articles/creating-a-pull-request) with a link to your open source client.
+These clients are not officially supported by Shutterstock. Feel free to [create pull request](https://help.github.com/articles/creating-a-pull-request) with a link to your open source client.
 
 Node
 
