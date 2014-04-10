@@ -2,6 +2,9 @@
 
 This is a collection of resources for the Shutterstock API.
 
+ * [Clients](#clients)
+ * [Examples](#examples)
+
 ## Clients
 
 Node
