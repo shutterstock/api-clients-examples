@@ -1,0 +1,3 @@
+runtime: php54
+
+run: exec php -S localhost:8000
