@@ -1,6 +1,6 @@
-# PHP Curl
+# PHP (cURL)
 
-1. Start builtin PHP server (>= 5.4):
+1. Start builtin PHP server (>= 5.4)
 
    ``` console
    $ php -S localhost:8000
