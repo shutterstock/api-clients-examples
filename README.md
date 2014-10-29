@@ -29,4 +29,5 @@ Ruby
 
 ## Examples
 
- * [PHP (cURL)](https://github.com/shutterstock/api/blob/master/examples/php-curl/index.php)
+ * [PHP (cURL) v1](https://github.com/shutterstock/api/blob/master/examples/php-curl/index.php)
+ * [PHP (cURL) v2](https://github.com/shutterstock/api/blob/master/examples/php-curl/v2.php)
