@@ -29,5 +29,9 @@ Ruby
 
 ## Examples
 
- * v2: [Javascript](/shutterstock/api/blob/master/examples/javascript-jquery/v2.html), [PHP](/shutterstock/api/blob/master/examples/php-curl/v2.php)
- * v1: [PHP](/shutterstock/api/blob/master/examples/php-curl/index.php)
+ * v2: [Javascript][v2-js], [PHP][v2-php]
+ * v1: [PHP][v1-php]
+
+[v2-js]: https://github.com/shutterstock/api/blob/master/examples/javascript-jquery/v2.html
+[v2-php]: https://github.com/shutterstock/api/blob/master/examples/php-curl/v2.php
+[v1-php]: https://github.com/shutterstock/api/blob/master/examples/php-curl/index.php
