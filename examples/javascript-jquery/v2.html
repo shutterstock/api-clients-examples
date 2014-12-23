@@ -1,0 +1,241 @@
+<html>
+  <head>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+    <script type="text/javascript">
+      // Create image wrapper component
+      function createImageComponent(image) {
+        var wrapper = $('<div>');
+        var thumbWrapper = $('<div>');
+        var thumbnail = $('<img>');
+        var description = $('<p>');
+
+        $(thumbnail).attr('src', image.assets.preview.url);
+
+        $(thumbWrapper)
+          .addClass('thumbnail-wrapper')
+          .css('height', image.assets.preview.height)
+          .css('width', image.assets.preview.width)
+          .append(thumbnail);
+
+        $(description)
+          .text(image.description)
+          .attr('title', image.description);
+
+        $(wrapper)
+          .addClass('media-wrapper image')
+          .append(thumbWrapper)
+          .append(description);
+
+        return wrapper;
+      }
+
+      // Create video wrapper component
+      function createVideoComponent(video) {
+        var wrapper = $('<div>');
+        var preview = $('<video>');
+        var description = $('<p>');
+
+        $(preview)
+          .attr('src', video.assets.thumb_mp4.url)
+          .attr('controls', true)
+          .attr('autoplay', true);
+
+        $(description)
+          .text(video.description)
+          .attr('title', video.description);
+
+        $(wrapper)
+          .addClass('media-wrapper video')
+          .append(preview)
+          .append(description);
+
+        return wrapper;
+      }
+
+      // Search media by type
+      function search(opts, media_type) {
+        var $container = $('#' + media_type + '-search-results');
+        var createComponentFunc = media_type === 'image'
+          ? createImageComponent
+          : createVideoComponent;
+
+        // Get Client ID and Client Secret for use in the Authorization header
+        var clientId = $('input[name=client_id]').val();
+        var clientSecret = $('input[name=client_secret').val();
+
+        var jqxhr = $.ajax({
+          url: 'https://api.shutterstock.com/v2/' + media_type + 's/search',
+          data: opts,
+          headers: {
+            // Base 64 encode 'client_id:client_secret'
+            Authorization: 'Basic ' + window.btoa(clientId + ':' + clientSecret)
+          }
+        })
+        .done(function(data) {
+          if (data.total_count === 0) {
+            $container.append('<p>No Results</p>');
+            return;
+          }
+
+          $.each(data.data, function(i, item) {
+            var component = createComponentFunc(item);
+            $container.append(component);
+          });
+        })
+        .fail(function(xhr, status, err) {
+          alert('Failed to retrieve ' + media_type + ' search results:\n' + JSON.stringify(xhr.responseJSON, null, 2));
+        });
+
+        return jqxhr;
+      }
+
+      // On Page Load
+      $(function() {
+        $('#search-form').submit(function() {
+          // Clear current media results
+          $('#image-search-results, #video-search-results').empty();
+
+          // Serialize form options
+          var opts = $("input[value != '']", this).serialize();
+
+          // Search and display images
+          search(opts, 'image');
+
+          // Search and display videos
+          search(opts, 'video');
+
+          return false;
+        });
+      });
+    </script>
+
+    <style>
+      h2.title {
+        text-align: center;
+      }
+
+      form {
+        width: 400px;
+        margin: 0 auto;
+      }
+
+      form label {
+        width: 110px;
+        float: left;
+        font-weight: bold;
+      }
+
+      form input[type="submit"] {
+        margin-top: 5px;
+      }
+
+      div.container {
+        margin: 0 auto;
+        width: 1020px;
+      }
+
+      div.media {
+        text-align: center;
+        float: left;
+      }
+
+      div.media h2 {
+        width: 500px;
+      }
+
+      div.media-wrapper {
+        padding: 5px;
+        width: 500px;
+        text-align: center;
+      }
+
+      div.media-wrapper p {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+
+      div.thumbnail-wrapper {
+        overflow: hidden;
+        margin: 0 auto;
+      }
+
+      div.image {
+        max-height: 500px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2 class="title">Shutterstock v2 Search Example</h2>
+
+    <form id="search-form">
+      <fieldset>
+        <div>
+          <label for="client_id">Client ID:</label>
+          <input name="client_id" required></input>
+        </div>
+
+        <div>
+          <label for="client_secret">Client Secret:</label>
+          <input name="client_secret" required></input>
+        </div>
+
+        <br/>
+
+        <div>
+          <label for="query">Search query:</label>
+          <input name="query"></input>
+        </div>
+
+        <div>
+          <label for="page">Page:</label>
+          <input name="page" type="number" min="1" value="1"></input>
+        </div>
+
+        <div>
+          <label for="per_page">Per Page:</label>
+          <input name="per_page" type="number" min="1" value="5"></input>
+        </div>
+
+        <div>
+          <label for="safe">Safe Search:</label>
+          <input name="safe" type="radio" value="false">Off</input>
+          <input name="safe" type="radio" value="true" checked>On</input>
+        </div>
+
+        <div>
+          <label for="image_type">Image Type:</label>
+          <input name="image_type" type="radio" value="" checked>Off</input>
+          <input name="image_type" type="radio" value="photo">Photo</input>
+          <input name="image_type" type="radio" value="illustration">Illustration</input>
+          <input name="image_type" type="radio" value="vector">Vector</input>
+        </div>
+
+        <div>
+          <label for="people_number"># People:</label>
+          <input name="people_number" type="radio" value="" checked>Off</input>
+          <input name="people_number" type="radio" value="1">1</input>
+          <input name="people_number" type="radio" value="2">2</input>
+          <input name="people_number" type="radio" value="3">3</input>
+          <input name="people_number" type="radio" value="4">4+</input>
+        </div>
+
+        <input name="submit" type="submit" value="Submit"></input>
+      </fieldset>
+    </form>
+
+    <div class="container">
+      <div class="media">
+        <h2>Images</h2>
+        <div id="image-search-results"></div>
+      </div>
+
+      <div class="media">
+        <h2>Videos</h2>
+        <div id="video-search-results"></div>
+      </div>
+    </div>
+  </body>
+</html>
