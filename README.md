@@ -11,8 +11,8 @@ These clients are not officially supported by Shutterstock. Feel free to [create
 
 Node
 
+ * [node-shutterstock](https://www.npmjs.com/package/shutterstock) (MIT)
  * [node-shutterstock-api](https://github.com/shutterstock/node-shutterstock-api)
- * [shutterstock.js](https://github.com/silas/shutterstock.js) (MIT)
 
 Perl
 
