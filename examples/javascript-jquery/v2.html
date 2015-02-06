@@ -62,7 +62,7 @@
 
         // Get Client ID and Client Secret for use in the Authorization header
         var clientId = $('input[name=client_id]').val();
-        var clientSecret = $('input[name=client_secret').val();
+        var clientSecret = $('input[name=client_secret]').val();
 
         var jqxhr = $.ajax({
           url: 'https://api.shutterstock.com/v2/' + media_type + 's/search',
@@ -92,7 +92,9 @@
 
       // On Page Load
       $(function() {
-        $('#search-form').submit(function() {
+        $('#search-form').submit(function(e) {
+          e.preventDefault();
+
           // Clear current media results
           $('#image-search-results, #video-search-results').empty();
 
@@ -174,12 +176,12 @@
       <fieldset>
         <div>
           <label for="client_id">Client ID:</label>
-          <input name="client_id" required></input>
+          <input name="client_id" autocomplete="on" required></input>
         </div>
 
         <div>
           <label for="client_secret">Client Secret:</label>
-          <input name="client_secret" required></input>
+          <input name="client_secret" autocomplete="on" required></input>
         </div>
 
         <br/>
