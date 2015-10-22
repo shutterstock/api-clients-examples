@@ -163,31 +163,10 @@
 
       <form id="search-form">
         <fieldset>
-          <div>
-            <label for="client_id">Client ID:</label>
-            <input name="client_id" autocomplete="on" required></input>
-          </div>
-
-          <div>
-            <label for="client_secret">Client Secret:</label>
-            <input name="client_secret" autocomplete="on" required></input>
-          </div>
-
-          <br/>
 
           <div>
             <label for="query">Search query:</label>
             <input name="query"></input>
-          </div>
-
-          <div>
-            <label for="page">Page:</label>
-            <input name="page" type="number" min="1" value="1"></input>
-          </div>
-
-          <div>
-            <label for="per_page">Per Page:</label>
-            <input name="per_page" type="number" min="1" value="5"></input>
           </div>
 
           <div>
@@ -211,6 +190,26 @@
             <input name="people_number" type="radio" value="2">2</input>
             <input name="people_number" type="radio" value="3">3</input>
             <input name="people_number" type="radio" value="4">4+</input>
+          </div>
+
+          <div>
+            <label for="page">Page:</label>
+            <input name="page" type="number" min="1" value="1"></input>
+          </div>
+
+          <div>
+            <label for="per_page">Per Page:</label>
+            <input name="per_page" type="number" min="1" value="5"></input>
+          </div>
+
+          <div>
+            <label for="client_id">Client ID:</label>
+            <input name="client_id" autocomplete="on" required></input>
+          </div>
+
+          <div>
+            <label for="client_secret">Client Secret:</label>
+            <input name="client_secret" autocomplete="on" required></input>
           </div>
 
           <input name="submit" type="submit" value="Submit"></input>
