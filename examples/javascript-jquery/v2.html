@@ -39,8 +39,9 @@
             return;
           }
 
+          var minHeightCSS = /horizontal/.test(opts) ? 'horizontal-image' : 'vertical-image';
           $.each(data.data, function(i, item) {
-            var component = createComponentFunc(item);
+            var component = createComponentFunc(item, minHeightCSS);
             $container.append(component);
           });
         })
@@ -54,57 +55,75 @@
       /* Render functions */
 
       // Create image wrapper component
-      function renderImageComponent(image) {
+      function renderImageComponent(image, minHeightCSS) {
+        if (!image || !image.assets || !image.assets.large_thumb || !image.assets.large_thumb.url) return;
+
         var wrapper = $('<div>');
         var thumbWrapper = $('<div>');
         var thumbnail = $('<img>');
         var description = $('<p>');
 
-        $(thumbnail).attr('src', image.assets.preview.url);
-
-        $(thumbWrapper)
-          .addClass('thumbnail-wrapper')
-          .css('height', image.assets.preview.height)
-          .css('width', image.assets.preview.width)
-          .append(thumbnail);
-
-        $(description)
-          .text(image.description)
+        $(thumbnail)
+          .attr('id', image.id)
+          .attr('src', image.assets.large_thumb.url)
           .attr('title', image.description);
 
+        $(thumbWrapper)
+          .addClass('thumbnail-crop')
+          .css('height', image.assets.large_thumb.height)
+          .css('width', image.assets.large_thumb.width)
+          .append(thumbnail);
+
         $(wrapper)
-          .addClass('media-wrapper image')
-          .append(thumbWrapper)
-          .append(description);
+          .addClass('image-float-wrapper image ' + minHeightCSS)
+          .append(thumbWrapper);
 
         return wrapper;
       }
 
       // Create video wrapper component
       function renderVideoComponent(video) {
-        var wrapper = $('<div>');
-        var preview = $('<video>');
+        if (!video || !video.assets || !video.assets.thumb_mp4 || !video.assets.thumb_mp4.url) return;
+
+        var wrapper = $('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">');
+        var preview = $('<video width="100%">');
         var description = $('<p>');
 
         $(preview)
+          .attr('id', video.id)
           .attr('src', video.assets.thumb_mp4.url)
           .attr('controls', true)
-          .attr('autoplay', true);
-
-        $(description)
-          .text(video.description)
+          .attr('autoplay', true)
           .attr('title', video.description);
 
         $(wrapper)
-          .addClass('media-wrapper video')
+          .addClass('video-wrapper video')
           .append(preview)
-          .append(description);
 
         return wrapper;
       }
 
+      function setDefaultPerPage() {
+        var imagesWhichFitOnThePage = (window.innerWidth * window.innerHeight) / (300 * 300);
+        var bestPerPage;
+
+        $('select[name=per_page]')
+          .find('option')
+          .each(function() {
+            if (this.value < imagesWhichFitOnThePage) {
+              bestPerPage = this.value;
+            }
+          });
+
+        if (bestPerPage) {
+          $('select[name=per_page]').val(bestPerPage);
+        }
+      }
+
       // On Page Load
       $(function() {
+        setDefaultPerPage();
+
         $('#search-form').submit(function(e) {
           e.preventDefault();
 
@@ -112,10 +131,23 @@
           $('#image-search-results, #video-search-results').empty();
 
           // Serialize form options
-          var opts = $("input[value != '']", this).serialize();
+          var opts = $('input').filter(function() {
+            return !!this.value;
+          }).serialize();
+
+          opts += '&' + $('select').filter(function() {
+            return !!this.value;
+          }).serialize();
+          console.log('Requesting: ' + opts)
 
           // Search and display images
           search(opts, 'image');
+
+          // Reduce # videos to better fit on the page
+          var perPage = $('select[name=per_page]').val();
+          if (perPage > 24) {
+            opts = opts.replace('per_page=' + perPage, 'per_page=' + perPage / 2);
+          }
 
           // Search and display videos
           search(opts, 'video');
@@ -126,19 +158,27 @@
     </script>
 
     <style>
-      div.media-wrapper {
-        padding: 5px;
-        width: 500px;
+      .vertical-image {
+        min-height: 170px;
+      }
+
+      .horizontal-image {
+        min-height: 160px;
+      }
+
+      div.image-float-wrapper {
+        padding-bottom: 10px;
+        padding-right: 10px;
+        float: left;
         text-align: center;
       }
 
-      div.media-wrapper p {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
+      div.video-wrapper {
+        padding: 5px;
+        text-align: center;
       }
 
-      div.thumbnail-wrapper {
+      div.thumbnail-crop {
         overflow: hidden;
         margin: 0 auto;
       }
@@ -184,6 +224,13 @@
           </div>
 
           <div>
+            <label for="orientation">Orientation:</label>
+            <input name="orientation" type="radio" value="" checked>Any</input>
+            <input name="orientation" type="radio" value="vertical">Vertical</input>
+            <input name="orientation" type="radio" value="horizontal">Horizontal</input>
+          </div>
+
+          <div>
             <label for="people_number"># People:</label>
             <input name="people_number" type="radio" value="" checked>Off</input>
             <input name="people_number" type="radio" value="1">1</input>
@@ -199,7 +246,15 @@
 
           <div>
             <label for="per_page">Per Page:</label>
-            <input name="per_page" type="number" min="1" value="5"></input>
+            <select name="per_page">
+              <option value="3">3</option>
+              <option value="9" selected>9</option>
+              <option value="12">12</option>
+              <option value="18">18</option>
+              <option value="24">24</option>
+              <option value="28">28</option>
+              <option value="48">48</option>
+            </select>
           </div>
 
           <div>
