@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>Shutterstock v2 Search Example</title>
@@ -338,7 +339,7 @@
             <div class="form-group form-group-sm row">
               <label class="col-xs-12 col-sm-6 col-md-6 col-lg-6 control-label" for="query">Search query:</label>
               <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                <input name="query" class="form-control"></input>
+                <input id="query" name="query" class="form-control"/>
               </div>
             </div>
             <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
@@ -356,13 +357,13 @@
                     <div class="form-horizontal form-group-sm">
                       <div class="form-group hide" hidden>
                         <label for="safe" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Safe Search:</label>
-                        <select name="safe" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <select id="safe" name="safe" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
                           <option value="true" selected>On</option>
                         </select>
                       </div>
                       <div class="form-group">
                         <label for="image_type" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Image Type:</label>
-                        <select name="image_type" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <select id="image_type" name="image_type" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
                           <option value="">Any</option>
                           <option value="photo" selected>Photo</option>
                           <option value="illustration">Illustration</option>
@@ -371,7 +372,7 @@
                       </div>
                       <div class="form-group">
                         <label for="orientation" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Orientation:</label>
-                        <select name="orientation" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <select id="orientation" name="orientation" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
                           <option value="">Any</option>
                           <option value="vertical"> Vertical </option>
                           <option value="horizontal" selected> Horizontal </option>
@@ -379,13 +380,13 @@
                       </div>
                       <div class="form-group">
                         <label for="category" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Category:</label>
-                        <select name="category" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <select id="category" name="category" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
                           <option value="" selected>Any</option>
                         </select>
                       </div>
                       <div class="form-group">
                         <label for="people_number" class="col-xs-6 col-sm-6 col-md-6 col-lg-6"># People:</label>
-                        <select name="people_number" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <select id="people_number" name="people_number" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
                           <option value="" selected>Any</option>
                           <option value="0">0</option>
                           <option value="1">1</option>
@@ -396,22 +397,22 @@
                       </div>
                       <div class="form-group">
                         <label for="color" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Color Search:</label>
-                        <input name="color" type="color" value="#999999" class="hide" hidden></input>
-                        <input type="color" value="#2d978c" onclick="setColor(this)"></input>
-                        <input type="color" value="#d97291" onclick="setColor(this)"></input>
+                        <input id="color" name="color" type="color" value="#999999" class="hide" hidden/>
+                        <input type="color" value="#2d978c" onclick="setColor(this)"/>
+                        <input type="color" value="#d97291" onclick="setColor(this)"/>
                         <br/>
-                        <input type="color" value="#259503" onclick="setColor(this)"></input>
-                        <input type="color" value="#d7d11c" onclick="setColor(this)"></input>
+                        <input type="color" value="#259503" onclick="setColor(this)"/>
+                        <input type="color" value="#d7d11c" onclick="setColor(this)"/>
                       </div>
                       <div class="form-group">
                         <label for="page" class="col-xs-3 col-sm-3 col-md-3 col-lg-7">Page:</label>
-                        <select name="page" class="btn col-xs-3 col-sm-3 col-md-3 col-lg-5">
+                        <select id="page" name="page" class="btn col-xs-3 col-sm-3 col-md-3 col-lg-5">
                           <option value="1">1</option>
                           <option value="2">2</option>
                           <option value="3">3</option>
                         </select>
                         <label for="per_page" class="col-xs-3 col-sm-3 col-md-3 col-lg-7">Per Page:</label>
-                        <select name="per_page" class="btn col-xs-3 col-sm-3 col-md-3 col-lg-5">
+                        <select id="per_page" name="per_page" class="btn col-xs-3 col-sm-3 col-md-3 col-lg-5">
                           <option value="3">3</option>
                           <option value="9" selected>9</option>
                           <option value="12">12</option>
@@ -439,18 +440,18 @@
                     <div class="form-group form-group-sm row">
                       <label class="col-xs-6 col-sm-6 col-md-6 col-lg-6 control-label" for="client_id">Client ID:</label>
                       <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                        <input name="client_id" autocomplete="on" value="3352aeffbd24d33f8859" class="form-control"></input>
+                        <input id="client_id" name="client_id" autocomplete="on" value="3352aeffbd24d33f8859" class="form-control"/>
                       </div>
                       <label class="col-xs-6 col-sm-6 col-md-6 col-lg-6 control-label" for="client_secret">Client Secret:</label>
                       <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                        <input name="client_secret" autocomplete="on" value="097f832242ad371d9f012770cabdb1e6cebc433a" class="form-control"></input>
+                        <input id="client_secret" name="client_secret" autocomplete="on" value="097f832242ad371d9f012770cabdb1e6cebc433a" class="form-control"/>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <button name="submit" type="submit" class="btn btn-primary pull-right">
+            <button id="submit" name="submit" type="submit" class="btn btn-primary pull-right">
               Search <i class="fa fa-search"></i>
             </button>
           </fieldset>
