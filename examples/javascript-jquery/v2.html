@@ -318,37 +318,49 @@
 
           <div>
             <label for="safe">Safe Search:</label>
-            <input name="safe" type="radio" value="false">Off</input>
-            <input name="safe" type="radio" value="true" checked>On</input>
+            <select name="safe">
+              <option value="true" selected>On</option>
+            </select>
           </div>
 
           <div>
             <label for="image_type">Image Type:</label>
-            <input name="image_type" type="radio" value="" checked>Off</input>
-            <input name="image_type" type="radio" value="photo">Photo</input>
-            <input name="image_type" type="radio" value="illustration">Illustration</input>
-            <input name="image_type" type="radio" value="vector">Vector</input>
+            <select name="image_type">
+              <option value="">Any</option>
+              <option value="photo" selected>Photo</option>
+              <option value="illustration">Illustration</option>
+              <option value="vector">Vector</option>
+            </select>
           </div>
 
           <div>
             <label for="orientation">Orientation:</label>
-            <input name="orientation" type="radio" value="" checked>Any</input>
-            <input name="orientation" type="radio" value="vertical">Vertical</input>
-            <input name="orientation" type="radio" value="horizontal">Horizontal</input>
+            <select name="orientation">
+              <option value="">Any</option>
+              <option value="vertical"> Vertical </option>
+              <option value="horizontal" selected> Horizontal </option>
+            </select>
           </div>
 
           <div>
             <label for="people_number"># People:</label>
-            <input name="people_number" type="radio" value="" checked>Off</input>
-            <input name="people_number" type="radio" value="1">1</input>
-            <input name="people_number" type="radio" value="2">2</input>
-            <input name="people_number" type="radio" value="3">3</input>
-            <input name="people_number" type="radio" value="4">4+</input>
+            <select name="people_number">
+              <option value="" selected>Any</option>
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4+</option>
+            </select>
           </div>
 
           <div>
             <label for="page">Page:</label>
-            <input name="page" type="number" min="1" value="1"></input>
+            <select name="page">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
           </div>
 
           <div>
