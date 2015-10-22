@@ -14,23 +14,36 @@
     <script type="text/javascript">
       /* Fetch functions */
 
-      // Search media by type
-      function search(opts, media_type) {
-        var $container = $('#' + media_type + '-search-results');
-        var createComponentFunc = media_type === 'image'
-          ? renderImageComponent
-          : renderVideoComponent;
+      var API_URL = 'https://api.shutterstock.com/v2';
 
-        // Get Client ID and Client Secret for use in the Authorization header
+      // Base 64 encode Client ID and Client Secret for use in the Authorization header
+      function encodeAuthorization() {
         var clientId = $('input[name=client_id]').val();
         var clientSecret = $('input[name=client_secret]').val();
 
+        if (!clientId || !clientSecret) {
+          $('#collapseAuthentication').collapse('show');
+          alert('Client id and/or client secret are missing in the API key section, with out these you wont be able to contact the API.');
+          return;
+        }
+        return 'Basic ' + window.btoa(clientId + ':' + clientSecret);
+      }
+
+      // Search media by type
+      function search(opts, mediaType) {
+        var $container = $('#' + mediaType + '-search-results');
+        var createComponentFunc = mediaType === 'image'
+          ? renderImageComponent
+          : renderVideoComponent;
+
+        authorization = encodeAuthorization();
+        if (!authorization) return;
+
         var jqxhr = $.ajax({
-          url: 'https://api.shutterstock.com/v2/' + media_type + 's/search',
+          url: API_URL + '/' + mediaType + 's/search',
           data: opts,
           headers: {
-            // Base 64 encode 'client_id:client_secret'
-            Authorization: 'Basic ' + window.btoa(clientId + ':' + clientSecret)
+            Authorization: authorization
           }
         })
         .done(function(data) {
@@ -46,7 +59,7 @@
           });
         })
         .fail(function(xhr, status, err) {
-          alert('Failed to retrieve ' + media_type + ' search results:\n' + JSON.stringify(xhr.responseJSON, null, 2));
+          alert('Failed to retrieve ' + mediaType + ' search results:\n' + JSON.stringify(xhr.responseJSON, null, 2));
         });
 
         return jqxhr;
@@ -132,6 +145,8 @@
 
           // Serialize form options
           var opts = $('input').filter(function() {
+            if (this.name === 'client_id') return;
+            if (this.name === 'client_secret') return;
             return !!this.value;
           }).serialize();
 
@@ -259,12 +274,12 @@
 
           <div>
             <label for="client_id">Client ID:</label>
-            <input name="client_id" autocomplete="on" required></input>
+            <input name="client_id" autocomplete="on" required value="3352aeffbd24d33f8859"></input>
           </div>
 
           <div>
             <label for="client_secret">Client Secret:</label>
-            <input name="client_secret" autocomplete="on" required></input>
+            <input name="client_secret" autocomplete="on" required value="097f832242ad371d9f012770cabdb1e6cebc433a"></input>
           </div>
 
           <input name="submit" type="submit" value="Submit"></input>
