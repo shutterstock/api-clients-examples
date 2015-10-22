@@ -203,6 +203,14 @@
         alert('Here you will need server-side code to purchase and download the un-watermarked image. See the documentation at https://developers.shutterstock.com/guides/licensing');
       }
 
+      // Add categories to the category <select>
+      function renderCategories() {
+        var categorySelect = $('[name="category"]')[0];
+        ['Abstract', 'Animals/Wildlife', 'Backgrounds/Textures', 'Beauty/Fashion', 'Buildings/Landmarks', 'Business/Finance', 'Celebrities', 'Editorial', 'Education', 'Food and Drink', 'Healthcare/Medical', 'Holidays', 'Illustrations/Clip-Art', 'Industrial', 'Interiors', 'Miscellaneous', 'Model Released Only', 'Nature', 'Objects', 'Parks/Outdoor', 'People', 'Religion', 'Science', 'Signs/Symbols', 'Sports/Recreation', 'Technology', 'The Arts', 'Transportation', 'Vectors', 'Vintage'].map(function(category) {
+          categorySelect.add(new Option(category, category));
+        });
+      }
+
       function setDefaultPerPage() {
         var imagesWhichFitOnThePage = (window.innerWidth * window.innerHeight) / (300 * 300);
         var bestPerPage;
@@ -220,8 +228,20 @@
         }
       }
 
+      function setColor(target) {
+        $("input[name=color]").val(target.value);
+      }
+
+      function useColorsInNatureIfSearchingOnlyByColor (opts) {
+        if (/color/.test(opts) & !/category/.test(opts) && !/query/.test(opts)){
+          opts += '&category=Nature';
+        }
+        return opts;
+      }
+
       // On Page Load
       $(function() {
+        renderCategories();
         setDefaultPerPage();
 
         $('#search-form').submit(function(e) {
@@ -232,6 +252,7 @@
 
           // Serialize form options
           var opts = $('input').filter(function() {
+            if (this.value === '#999999') return;
             if (this.name === 'client_id') return;
             if (this.name === 'client_secret') return;
             return !!this.value;
@@ -240,6 +261,7 @@
           opts += '&' + $('select').filter(function() {
             return !!this.value;
           }).serialize();
+          opts = useColorsInNatureIfSearchingOnlyByColor(opts);
           console.log('Requesting: ' + opts)
 
           // Search and display images
@@ -356,6 +378,12 @@
                       </select>
                     </div>
                     <div class="form-group">
+                      <label for="category" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Category:</label>
+                      <select name="category" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <option value="" selected>Any</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
                       <label for="people_number" class="col-xs-6 col-sm-6 col-md-6 col-lg-6"># People:</label>
                       <select name="people_number" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
                         <option value="" selected>Any</option>
@@ -365,6 +393,15 @@
                         <option value="3">3</option>
                         <option value="4">4+</option>
                       </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="color" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Color Search:</label>
+                      <input name="color" type="color" value="#999999" class="hide" hidden></input>
+                      <input type="color" value="#2d978c" onclick="setColor(this)"></input>
+                      <input type="color" value="#d97291" onclick="setColor(this)"></input>
+                      <br/>
+                      <input type="color" value="#259503" onclick="setColor(this)"></input>
+                      <input type="color" value="#d7d11c" onclick="setColor(this)"></input>
                     </div>
                     <div class="form-group">
                       <label for="page" class="col-xs-3 col-sm-3 col-md-3 col-lg-7">Page:</label>
