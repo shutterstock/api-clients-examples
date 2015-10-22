@@ -65,6 +65,38 @@
         return jqxhr;
       }
 
+      // Fetch media details
+      function fetchDetails(event) {
+        event.preventDefault();
+
+        var id = event.target.id;
+        var mediaType = event.target.tagName === 'IMG' ? 'image' : 'video';
+        var authorization = encodeAuthorization();
+
+        if (!id || !authorization) return;
+
+        renderLoadingDetails(id);
+
+        var jqxhr = $.ajax({
+            url: API_URL + '/' + mediaType + 's/' + id,
+            headers: {
+              Authorization: authorization
+            }
+          })
+          .done(function(data) {
+            console.log('JSON response', data);
+
+            if (!data || !data.assets || !data.assets) return;
+
+            renderDetails(data);
+          })
+          .fail(function(xhr, status, err) {
+            alert('Failed to retrieve ' + mediaType + ' details:\n' + JSON.stringify(xhr.responseJSON, null, 2));
+          });
+
+        return jqxhr;
+      }
+
       /* Render functions */
 
       // Create image wrapper component
@@ -77,6 +109,7 @@
         var description = $('<p>');
 
         $(thumbnail)
+          .click(fetchDetails)
           .attr('id', image.id)
           .attr('src', image.assets.large_thumb.url)
           .attr('title', image.description);
@@ -103,6 +136,7 @@
         var description = $('<p>');
 
         $(preview)
+          .click(fetchDetails)
           .attr('id', video.id)
           .attr('src', video.assets.thumb_mp4.url)
           .attr('controls', true)
@@ -114,6 +148,56 @@
           .append(preview)
 
         return wrapper;
+      }
+
+      // Display media details in a modal
+      function renderDetails(data) {
+        var detailTemplate = $('.detail-template');
+        detailTemplate.find('.modal-body').html('<div></div><p><strong>Keywords: </strong><small></small></p>')
+
+        if (data.media_type === 'image') {
+          var thumbWrapper = $('<div>');
+          var thumbnail = $('<img>');
+
+          $(thumbnail)
+            .click(fetchDetails)
+            .attr('id', data.id)
+            .attr('src', data.assets.preview.url)
+            .attr('title', data.description);
+
+          $(thumbWrapper)
+            .addClass('thumbnail-crop')
+            .css('height', data.assets.preview.height)
+            .css('width', data.assets.preview.width)
+            .append(thumbnail);
+
+          detailTemplate.find('.modal-body').find('div')
+            .append(thumbWrapper)
+        } else if (data.media_type === 'video') {
+          detailTemplate.find('.modal-body').find('div')
+            .append('<video></video>');
+
+          detailTemplate.find('video')
+            .attr('src', data.assets.preview_mp4.url)
+            .attr('controls', true);
+        }
+
+        detailTemplate.find('h3').html(data.description);
+        detailTemplate.find('small').html(data.keywords.join(', '));
+      }
+
+      // Render a loading spinner while we wait for image/video details
+      function renderLoadingDetails(id) {
+        var detailTemplate = $('.detail-template');
+
+        detailTemplate.find('.modal-body').html('<i class="fa fa-5x fa-spinner fa-spin"></i>')
+        detailTemplate.find('h3').html('Loading ' + id + '...');
+        detailTemplate.modal('show');
+      }
+
+      // Simulate user chooses an image/video
+      function renderServerSideInstructions() {
+        alert('Here you will need server-side code to purchase and download the un-watermarked image. See the documentation at https://developers.shutterstock.com/guides/licensing');
       }
 
       function setDefaultPerPage() {
@@ -193,17 +277,25 @@
         text-align: center;
       }
 
+      .shutterstock-logo {
+        width: 50%;
+      }
+
+      /* Crop image ID */
+
       div.thumbnail-crop {
         overflow: hidden;
         margin: 0 auto;
       }
 
-      div.image {
-        max-height: 500px;
+      /* Details area */
+
+      div.detail-template .modal-body div {
+        text-align: center;
       }
 
-      .shutterstock-logo {
-        width: 50%;
+      div.detail-template img, div.detail-template video {
+        width: 100%;
       }
     </style>
   </head>
@@ -296,6 +388,23 @@
         <p class="lead">Videos</p>
         <hr />
         <div id="video-search-results" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+      </div>
+    </div>
+    <!-- Detail template -->
+    <div class="detail-template modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">x</button>
+            <h3 class="lead"></h3>
+
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="renderServerSideInstructions()">Use this item</button>
+          </div>
+        </div>
       </div>
     </div>
   </body>
