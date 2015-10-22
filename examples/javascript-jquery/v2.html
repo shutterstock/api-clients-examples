@@ -1,6 +1,15 @@
 <html>
   <head>
+    <title>Shutterstock v2 Search Example</title>
+
+    <meta name="viewport" content="initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"/>
+
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
     <script type="text/javascript">
       // Create image wrapper component
@@ -113,39 +122,6 @@
     </script>
 
     <style>
-      h2.title {
-        text-align: center;
-      }
-
-      form {
-        width: 400px;
-        margin: 0 auto;
-      }
-
-      form label {
-        width: 110px;
-        float: left;
-        font-weight: bold;
-      }
-
-      form input[type="submit"] {
-        margin-top: 5px;
-      }
-
-      div.container {
-        margin: 0 auto;
-        width: 1020px;
-      }
-
-      div.media {
-        text-align: center;
-        float: left;
-      }
-
-      div.media h2 {
-        width: 500px;
-      }
-
       div.media-wrapper {
         padding: 5px;
         width: 500px;
@@ -166,77 +142,87 @@
       div.image {
         max-height: 500px;
       }
+
+      .shutterstock-logo {
+        width: 50%;
+      }
     </style>
   </head>
 
   <body>
-    <h2 class="title">Shutterstock v2 Search Example</h2>
+    <div class="container col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="well col-xs-12 col-sm-4 col-md-4 col-lg-3">
+      <h4 class="lead">
+          <img src="http://s4.picdn.net/images/ss-logo-color-2x_rev1.png" class="shutterstock-logo" alt="API Demo" title="API Demo"/>
+          <small> API Demo </small>
+      </h4>
 
-    <form id="search-form">
-      <fieldset>
-        <div>
-          <label for="client_id">Client ID:</label>
-          <input name="client_id" autocomplete="on" required></input>
-        </div>
+      <form id="search-form">
+        <fieldset>
+          <div>
+            <label for="client_id">Client ID:</label>
+            <input name="client_id" autocomplete="on" required></input>
+          </div>
 
-        <div>
-          <label for="client_secret">Client Secret:</label>
-          <input name="client_secret" autocomplete="on" required></input>
-        </div>
+          <div>
+            <label for="client_secret">Client Secret:</label>
+            <input name="client_secret" autocomplete="on" required></input>
+          </div>
 
-        <br/>
+          <br/>
 
-        <div>
-          <label for="query">Search query:</label>
-          <input name="query"></input>
-        </div>
+          <div>
+            <label for="query">Search query:</label>
+            <input name="query"></input>
+          </div>
 
-        <div>
-          <label for="page">Page:</label>
-          <input name="page" type="number" min="1" value="1"></input>
-        </div>
+          <div>
+            <label for="page">Page:</label>
+            <input name="page" type="number" min="1" value="1"></input>
+          </div>
 
-        <div>
-          <label for="per_page">Per Page:</label>
-          <input name="per_page" type="number" min="1" value="5"></input>
-        </div>
+          <div>
+            <label for="per_page">Per Page:</label>
+            <input name="per_page" type="number" min="1" value="5"></input>
+          </div>
 
-        <div>
-          <label for="safe">Safe Search:</label>
-          <input name="safe" type="radio" value="false">Off</input>
-          <input name="safe" type="radio" value="true" checked>On</input>
-        </div>
+          <div>
+            <label for="safe">Safe Search:</label>
+            <input name="safe" type="radio" value="false">Off</input>
+            <input name="safe" type="radio" value="true" checked>On</input>
+          </div>
 
-        <div>
-          <label for="image_type">Image Type:</label>
-          <input name="image_type" type="radio" value="" checked>Off</input>
-          <input name="image_type" type="radio" value="photo">Photo</input>
-          <input name="image_type" type="radio" value="illustration">Illustration</input>
-          <input name="image_type" type="radio" value="vector">Vector</input>
-        </div>
+          <div>
+            <label for="image_type">Image Type:</label>
+            <input name="image_type" type="radio" value="" checked>Off</input>
+            <input name="image_type" type="radio" value="photo">Photo</input>
+            <input name="image_type" type="radio" value="illustration">Illustration</input>
+            <input name="image_type" type="radio" value="vector">Vector</input>
+          </div>
 
-        <div>
-          <label for="people_number"># People:</label>
-          <input name="people_number" type="radio" value="" checked>Off</input>
-          <input name="people_number" type="radio" value="1">1</input>
-          <input name="people_number" type="radio" value="2">2</input>
-          <input name="people_number" type="radio" value="3">3</input>
-          <input name="people_number" type="radio" value="4">4+</input>
-        </div>
+          <div>
+            <label for="people_number"># People:</label>
+            <input name="people_number" type="radio" value="" checked>Off</input>
+            <input name="people_number" type="radio" value="1">1</input>
+            <input name="people_number" type="radio" value="2">2</input>
+            <input name="people_number" type="radio" value="3">3</input>
+            <input name="people_number" type="radio" value="4">4+</input>
+          </div>
 
-        <input name="submit" type="submit" value="Submit"></input>
-      </fieldset>
-    </form>
-
-    <div class="container">
-      <div class="media">
-        <h2>Images</h2>
+          <input name="submit" type="submit" value="Submit"></input>
+        </fieldset>
+      </form>
+    </div>
+    <div class="col-xs-12 col-md-8 col-md-8 col-lg-9">
+      <div class="col-xs-6 col-md-6 col-lg-6 image-results">
+        <p class="lead">Images</p>
+        <hr />
         <div id="image-search-results"></div>
       </div>
-
-      <div class="media">
-        <h2>Videos</h2>
-        <div id="video-search-results"></div>
+      <div class="col-xs-6 col-md-6 col-lg-6 video-results">
+        <p class="lead">Videos</p>
+        <hr />
+        <div id="video-search-results" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
       </div>
     </div>
   </body>
