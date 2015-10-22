@@ -12,62 +12,14 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
     <script type="text/javascript">
-      // Create image wrapper component
-      function createImageComponent(image) {
-        var wrapper = $('<div>');
-        var thumbWrapper = $('<div>');
-        var thumbnail = $('<img>');
-        var description = $('<p>');
-
-        $(thumbnail).attr('src', image.assets.preview.url);
-
-        $(thumbWrapper)
-          .addClass('thumbnail-wrapper')
-          .css('height', image.assets.preview.height)
-          .css('width', image.assets.preview.width)
-          .append(thumbnail);
-
-        $(description)
-          .text(image.description)
-          .attr('title', image.description);
-
-        $(wrapper)
-          .addClass('media-wrapper image')
-          .append(thumbWrapper)
-          .append(description);
-
-        return wrapper;
-      }
-
-      // Create video wrapper component
-      function createVideoComponent(video) {
-        var wrapper = $('<div>');
-        var preview = $('<video>');
-        var description = $('<p>');
-
-        $(preview)
-          .attr('src', video.assets.thumb_mp4.url)
-          .attr('controls', true)
-          .attr('autoplay', true);
-
-        $(description)
-          .text(video.description)
-          .attr('title', video.description);
-
-        $(wrapper)
-          .addClass('media-wrapper video')
-          .append(preview)
-          .append(description);
-
-        return wrapper;
-      }
+      /* Fetch functions */
 
       // Search media by type
       function search(opts, media_type) {
         var $container = $('#' + media_type + '-search-results');
         var createComponentFunc = media_type === 'image'
-          ? createImageComponent
-          : createVideoComponent;
+          ? renderImageComponent
+          : renderVideoComponent;
 
         // Get Client ID and Client Secret for use in the Authorization header
         var clientId = $('input[name=client_id]').val();
@@ -97,6 +49,58 @@
         });
 
         return jqxhr;
+      }
+
+      /* Render functions */
+
+      // Create image wrapper component
+      function renderImageComponent(image) {
+        var wrapper = $('<div>');
+        var thumbWrapper = $('<div>');
+        var thumbnail = $('<img>');
+        var description = $('<p>');
+
+        $(thumbnail).attr('src', image.assets.preview.url);
+
+        $(thumbWrapper)
+          .addClass('thumbnail-wrapper')
+          .css('height', image.assets.preview.height)
+          .css('width', image.assets.preview.width)
+          .append(thumbnail);
+
+        $(description)
+          .text(image.description)
+          .attr('title', image.description);
+
+        $(wrapper)
+          .addClass('media-wrapper image')
+          .append(thumbWrapper)
+          .append(description);
+
+        return wrapper;
+      }
+
+      // Create video wrapper component
+      function renderVideoComponent(video) {
+        var wrapper = $('<div>');
+        var preview = $('<video>');
+        var description = $('<p>');
+
+        $(preview)
+          .attr('src', video.assets.thumb_mp4.url)
+          .attr('controls', true)
+          .attr('autoplay', true);
+
+        $(description)
+          .text(video.description)
+          .attr('title', video.description);
+
+        $(wrapper)
+          .addClass('media-wrapper video')
+          .append(preview)
+          .append(description);
+
+        return wrapper;
       }
 
       // On Page Load
