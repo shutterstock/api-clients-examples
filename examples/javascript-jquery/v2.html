@@ -1,75 +1,50 @@
+<!DOCTYPE html>
 <html>
   <head>
+    <title>Shutterstock v2 Search Example</title>
+
+    <meta name="viewport" content="initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"/>
+
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
     <script type="text/javascript">
-      // Create image wrapper component
-      function createImageComponent(image) {
-        var wrapper = $('<div>');
-        var thumbWrapper = $('<div>');
-        var thumbnail = $('<img>');
-        var description = $('<p>');
+      /* Fetch functions */
 
-        $(thumbnail).attr('src', image.assets.preview.url);
+      var API_URL = 'https://api.shutterstock.com/v2';
 
-        $(thumbWrapper)
-          .addClass('thumbnail-wrapper')
-          .css('height', image.assets.preview.height)
-          .css('width', image.assets.preview.width)
-          .append(thumbnail);
-
-        $(description)
-          .text(image.description)
-          .attr('title', image.description);
-
-        $(wrapper)
-          .addClass('media-wrapper image')
-          .append(thumbWrapper)
-          .append(description);
-
-        return wrapper;
-      }
-
-      // Create video wrapper component
-      function createVideoComponent(video) {
-        var wrapper = $('<div>');
-        var preview = $('<video>');
-        var description = $('<p>');
-
-        $(preview)
-          .attr('src', video.assets.thumb_mp4.url)
-          .attr('controls', true)
-          .attr('autoplay', true);
-
-        $(description)
-          .text(video.description)
-          .attr('title', video.description);
-
-        $(wrapper)
-          .addClass('media-wrapper video')
-          .append(preview)
-          .append(description);
-
-        return wrapper;
-      }
-
-      // Search media by type
-      function search(opts, media_type) {
-        var $container = $('#' + media_type + '-search-results');
-        var createComponentFunc = media_type === 'image'
-          ? createImageComponent
-          : createVideoComponent;
-
-        // Get Client ID and Client Secret for use in the Authorization header
+      // Base 64 encode Client ID and Client Secret for use in the Authorization header
+      function encodeAuthorization() {
         var clientId = $('input[name=client_id]').val();
         var clientSecret = $('input[name=client_secret]').val();
 
+        if (!clientId || !clientSecret) {
+          $('#collapseAuthentication').collapse('show');
+          alert('Client id and/or client secret are missing in the API key section, with out these you wont be able to contact the API.');
+          return;
+        }
+        return 'Basic ' + window.btoa(clientId + ':' + clientSecret);
+      }
+
+      // Search media by type
+      function search(opts, mediaType) {
+        var $container = $('#' + mediaType + '-search-results');
+        var createComponentFunc = mediaType === 'image'
+          ? renderImageComponent
+          : renderVideoComponent;
+
+        authorization = encodeAuthorization();
+        if (!authorization) return;
+
         var jqxhr = $.ajax({
-          url: 'https://api.shutterstock.com/v2/' + media_type + 's/search',
+          url: API_URL + '/' + mediaType + 's/search',
           data: opts,
           headers: {
-            // Base 64 encode 'client_id:client_secret'
-            Authorization: 'Basic ' + window.btoa(clientId + ':' + clientSecret)
+            Authorization: authorization
           }
         })
         .done(function(data) {
@@ -78,20 +53,198 @@
             return;
           }
 
+          var minHeightCSS = /horizontal/.test(opts) ? 'horizontal-image' : 'vertical-image';
           $.each(data.data, function(i, item) {
-            var component = createComponentFunc(item);
+            var component = createComponentFunc(item, minHeightCSS);
             $container.append(component);
           });
+
+          // Reduce the options area to show the results
+          if (window.innerWidth < 600) $('.collapse.in').collapse();
         })
         .fail(function(xhr, status, err) {
-          alert('Failed to retrieve ' + media_type + ' search results:\n' + JSON.stringify(xhr.responseJSON, null, 2));
+          alert('Failed to retrieve ' + mediaType + ' search results:\n' + JSON.stringify(xhr.responseJSON, null, 2));
         });
 
         return jqxhr;
       }
 
+      // Fetch media details
+      function fetchDetails(event) {
+        event.preventDefault();
+
+        var id = event.target.id;
+        var mediaType = event.target.tagName === 'IMG' ? 'image' : 'video';
+        var authorization = encodeAuthorization();
+
+        if (!id || !authorization) return;
+
+        renderLoadingDetails(id);
+
+        var jqxhr = $.ajax({
+            url: API_URL + '/' + mediaType + 's/' + id,
+            headers: {
+              Authorization: authorization
+            }
+          })
+          .done(function(data) {
+            console.log('JSON response', data);
+
+            if (!data || !data.assets || !data.assets) return;
+
+            renderDetails(data);
+          })
+          .fail(function(xhr, status, err) {
+            alert('Failed to retrieve ' + mediaType + ' details:\n' + JSON.stringify(xhr.responseJSON, null, 2));
+          });
+
+        return jqxhr;
+      }
+
+      /* Render functions */
+
+      // Create image wrapper component
+      function renderImageComponent(image, minHeightCSS) {
+        if (!image || !image.assets || !image.assets.large_thumb || !image.assets.large_thumb.url) return;
+
+        var wrapper = $('<div>');
+        var thumbWrapper = $('<div>');
+        var thumbnail = $('<img>');
+        var description = $('<p>');
+
+        $(thumbnail)
+          .click(fetchDetails)
+          .attr('id', image.id)
+          .attr('src', image.assets.large_thumb.url)
+          .attr('title', image.description);
+
+        $(thumbWrapper)
+          .addClass('thumbnail-crop')
+          .css('height', image.assets.large_thumb.height)
+          .css('width', image.assets.large_thumb.width)
+          .append(thumbnail);
+
+        $(wrapper)
+          .addClass('image-float-wrapper image ' + minHeightCSS)
+          .append(thumbWrapper);
+
+        return wrapper;
+      }
+
+      // Create video wrapper component
+      function renderVideoComponent(video) {
+        if (!video || !video.assets || !video.assets.thumb_mp4 || !video.assets.thumb_mp4.url) return;
+
+        var wrapper = $('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">');
+        var preview = $('<video width="100%">');
+        var description = $('<p>');
+
+        $(preview)
+          .click(fetchDetails)
+          .attr('id', video.id)
+          .attr('src', video.assets.thumb_mp4.url)
+          .attr('controls', true)
+          .attr('autoplay', true)
+          .attr('title', video.description);
+
+        $(wrapper)
+          .addClass('video-wrapper video')
+          .append(preview)
+
+        return wrapper;
+      }
+
+      // Display media details in a modal
+      function renderDetails(data) {
+        var detailTemplate = $('.detail-template');
+        detailTemplate.find('.modal-body').html('<div></div><p><strong>Keywords: </strong><small></small></p>')
+
+        if (data.media_type === 'image') {
+          var thumbWrapper = $('<div>');
+          var thumbnail = $('<img>');
+
+          $(thumbnail)
+            .click(fetchDetails)
+            .attr('id', data.id)
+            .attr('src', data.assets.preview.url)
+            .attr('title', data.description);
+
+          $(thumbWrapper)
+            .addClass('thumbnail-crop')
+            .css('height', data.assets.preview.height)
+            .css('width', data.assets.preview.width)
+            .append(thumbnail);
+
+          detailTemplate.find('.modal-body').find('div')
+            .append(thumbWrapper)
+        } else if (data.media_type === 'video') {
+          detailTemplate.find('.modal-body').find('div')
+            .append('<video></video>');
+
+          detailTemplate.find('video')
+            .attr('src', data.assets.preview_mp4.url)
+            .attr('controls', true);
+        }
+
+        detailTemplate.find('h3').html(data.description);
+        detailTemplate.find('small').html(data.keywords.join(', '));
+      }
+
+      // Render a loading spinner while we wait for image/video details
+      function renderLoadingDetails(id) {
+        var detailTemplate = $('.detail-template');
+
+        detailTemplate.find('.modal-body').html('<i class="fa fa-5x fa-spinner fa-spin"></i>')
+        detailTemplate.find('h3').html('Loading ' + id + '...');
+        detailTemplate.modal('show');
+      }
+
+      // Simulate user chooses an image/video
+      function renderServerSideInstructions() {
+        alert('Here you will need server-side code to purchase and download the un-watermarked image. See the documentation at https://developers.shutterstock.com/guides/licensing');
+      }
+
+      // Add categories to the category <select>
+      function renderCategories() {
+        var categorySelect = $('[name="category"]')[0];
+        ['Abstract', 'Animals/Wildlife', 'Backgrounds/Textures', 'Beauty/Fashion', 'Buildings/Landmarks', 'Business/Finance', 'Celebrities', 'Editorial', 'Education', 'Food and Drink', 'Healthcare/Medical', 'Holidays', 'Illustrations/Clip-Art', 'Industrial', 'Interiors', 'Miscellaneous', 'Model Released Only', 'Nature', 'Objects', 'Parks/Outdoor', 'People', 'Religion', 'Science', 'Signs/Symbols', 'Sports/Recreation', 'Technology', 'The Arts', 'Transportation', 'Vectors', 'Vintage'].map(function(category) {
+          categorySelect.add(new Option(category, category));
+        });
+      }
+
+      function setDefaultPerPage() {
+        var imagesWhichFitOnThePage = (window.innerWidth * window.innerHeight) / (300 * 300);
+        var bestPerPage;
+
+        $('select[name=per_page]')
+          .find('option')
+          .each(function() {
+            if (this.value < imagesWhichFitOnThePage) {
+              bestPerPage = this.value;
+            }
+          });
+
+        if (bestPerPage) {
+          $('select[name=per_page]').val(bestPerPage);
+        }
+      }
+
+      function setColor(target) {
+        $("input[name=color]").val(target.value);
+      }
+
+      function useColorsInNatureIfSearchingOnlyByColor (opts) {
+        if (/color/.test(opts) & !/category/.test(opts) && !/query/.test(opts)){
+          opts += '&category=Nature';
+        }
+        return opts;
+      }
+
       // On Page Load
       $(function() {
+        renderCategories();
+        setDefaultPerPage();
+
         $('#search-form').submit(function(e) {
           e.preventDefault();
 
@@ -99,10 +252,27 @@
           $('#image-search-results, #video-search-results').empty();
 
           // Serialize form options
-          var opts = $("input[value != '']", this).serialize();
+          var opts = $('input').filter(function() {
+            if (this.value === '#999999') return;
+            if (this.name === 'client_id') return;
+            if (this.name === 'client_secret') return;
+            return !!this.value;
+          }).serialize();
+
+          opts += '&' + $('select').filter(function() {
+            return !!this.value;
+          }).serialize();
+          opts = useColorsInNatureIfSearchingOnlyByColor(opts);
+          console.log('Requesting: ' + opts)
 
           // Search and display images
           search(opts, 'image');
+
+          // Reduce # videos to better fit on the page
+          var perPage = $('select[name=per_page]').val();
+          if (perPage > 24) {
+            opts = opts.replace('per_page=' + perPage, 'per_page=' + perPage / 2);
+          }
 
           // Search and display videos
           search(opts, 'video');
@@ -113,130 +283,208 @@
     </script>
 
     <style>
-      h2.title {
+      .vertical-image {
+        min-height: 170px;
+      }
+
+      .horizontal-image {
+        min-height: 160px;
+      }
+
+      div.image-float-wrapper {
+        padding-bottom: 10px;
+        padding-right: 10px;
+        float: left;
         text-align: center;
       }
 
-      form {
-        width: 400px;
-        margin: 0 auto;
-      }
-
-      form label {
-        width: 110px;
-        float: left;
-        font-weight: bold;
-      }
-
-      form input[type="submit"] {
-        margin-top: 5px;
-      }
-
-      div.container {
-        margin: 0 auto;
-        width: 1020px;
-      }
-
-      div.media {
-        text-align: center;
-        float: left;
-      }
-
-      div.media h2 {
-        width: 500px;
-      }
-
-      div.media-wrapper {
+      div.video-wrapper {
         padding: 5px;
-        width: 500px;
         text-align: center;
       }
 
-      div.media-wrapper p {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
+      .shutterstock-logo {
+        width: 50%;
       }
 
-      div.thumbnail-wrapper {
+      /* Crop image ID */
+
+      div.thumbnail-crop {
         overflow: hidden;
         margin: 0 auto;
       }
 
-      div.image {
-        max-height: 500px;
+      /* Details area */
+
+      div.detail-template .modal-body div {
+        text-align: center;
+      }
+
+      div.detail-template img, div.detail-template video {
+        width: 100%;
       }
     </style>
   </head>
 
   <body>
-    <h2 class="title">Shutterstock v2 Search Example</h2>
+    <div class="container col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="well col-xs-12 col-sm-4 col-md-4 col-lg-3">
+        <h4 class="lead">
+            <img src="http://s4.picdn.net/images/ss-logo-color-2x_rev1.png" class="shutterstock-logo" alt="API Demo" title="API Demo"/>
+            <small> API Demo </small>
+        </h4>
 
-    <form id="search-form">
-      <fieldset>
-        <div>
-          <label for="client_id">Client ID:</label>
-          <input name="client_id" autocomplete="on" required></input>
-        </div>
+        <form id="search-form">
+          <fieldset>
+            <div class="form-group form-group-sm row">
+              <label class="col-xs-12 col-sm-6 col-md-6 col-lg-6 control-label" for="query">Search query:</label>
+              <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                <input id="query" name="query" class="form-control"/>
+              </div>
+            </div>
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingOptions">
+                  <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOptions" aria-expanded="true" aria-controls="collapseOptions">
+                      Example Parameters <i class="fa fa-gears"></i>
+                    </a>
+                  </h4>
 
-        <div>
-          <label for="client_secret">Client Secret:</label>
-          <input name="client_secret" autocomplete="on" required></input>
-        </div>
+                </div>
+                <div id="collapseOptions" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOptions">
+                  <div class="panel-body">
+                    <div class="form-horizontal form-group-sm">
+                      <div class="form-group hide" hidden>
+                        <label for="safe" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Safe Search:</label>
+                        <select id="safe" name="safe" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                          <option value="true" selected>On</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="image_type" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Image Type:</label>
+                        <select id="image_type" name="image_type" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                          <option value="">Any</option>
+                          <option value="photo" selected>Photo</option>
+                          <option value="illustration">Illustration</option>
+                          <option value="vector">Vector</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="orientation" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Orientation:</label>
+                        <select id="orientation" name="orientation" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                          <option value="">Any</option>
+                          <option value="vertical"> Vertical </option>
+                          <option value="horizontal" selected> Horizontal </option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="category" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Category:</label>
+                        <select id="category" name="category" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                          <option value="" selected>Any</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="people_number" class="col-xs-6 col-sm-6 col-md-6 col-lg-6"># People:</label>
+                        <select id="people_number" name="people_number" class="btn col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                          <option value="" selected>Any</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4+</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="color" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Color Search:</label>
+                        <input id="color" name="color" type="color" value="#999999" class="hide" hidden/>
+                        <input type="color" value="#2d978c" onclick="setColor(this)"/>
+                        <input type="color" value="#d97291" onclick="setColor(this)"/>
+                        <br/>
+                        <input type="color" value="#259503" onclick="setColor(this)"/>
+                        <input type="color" value="#d7d11c" onclick="setColor(this)"/>
+                      </div>
+                      <div class="form-group">
+                        <label for="page" class="col-xs-3 col-sm-3 col-md-3 col-lg-7">Page:</label>
+                        <select id="page" name="page" class="btn col-xs-3 col-sm-3 col-md-3 col-lg-5">
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                        </select>
+                        <label for="per_page" class="col-xs-3 col-sm-3 col-md-3 col-lg-7">Per Page:</label>
+                        <select id="per_page" name="per_page" class="btn col-xs-3 col-sm-3 col-md-3 col-lg-5">
+                          <option value="3">3</option>
+                          <option value="9" selected>9</option>
+                          <option value="12">12</option>
+                          <option value="18">18</option>
+                          <option value="24">24</option>
+                          <option value="28">28</option>
+                          <option value="48">48</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingAuthentication">
+                  <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseAuthentication" aria-expanded="false" aria-controls="collapseAuthentication">
+                      API Key <i class="fa fa-key"></i>
+                    </a>
+                  </h4>
 
-        <br/>
-
-        <div>
-          <label for="query">Search query:</label>
-          <input name="query"></input>
-        </div>
-
-        <div>
-          <label for="page">Page:</label>
-          <input name="page" type="number" min="1" value="1"></input>
-        </div>
-
-        <div>
-          <label for="per_page">Per Page:</label>
-          <input name="per_page" type="number" min="1" value="5"></input>
-        </div>
-
-        <div>
-          <label for="safe">Safe Search:</label>
-          <input name="safe" type="radio" value="false">Off</input>
-          <input name="safe" type="radio" value="true" checked>On</input>
-        </div>
-
-        <div>
-          <label for="image_type">Image Type:</label>
-          <input name="image_type" type="radio" value="" checked>Off</input>
-          <input name="image_type" type="radio" value="photo">Photo</input>
-          <input name="image_type" type="radio" value="illustration">Illustration</input>
-          <input name="image_type" type="radio" value="vector">Vector</input>
-        </div>
-
-        <div>
-          <label for="people_number"># People:</label>
-          <input name="people_number" type="radio" value="" checked>Off</input>
-          <input name="people_number" type="radio" value="1">1</input>
-          <input name="people_number" type="radio" value="2">2</input>
-          <input name="people_number" type="radio" value="3">3</input>
-          <input name="people_number" type="radio" value="4">4+</input>
-        </div>
-
-        <input name="submit" type="submit" value="Submit"></input>
-      </fieldset>
-    </form>
-
-    <div class="container">
-      <div class="media">
-        <h2>Images</h2>
-        <div id="image-search-results"></div>
+                </div>
+                <div id="collapseAuthentication" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingAuthentication">
+                  <div class="panel-body">
+                    <div class="form-group form-group-sm row">
+                      <label class="col-xs-6 col-sm-6 col-md-6 col-lg-6 control-label" for="client_id">Client ID:</label>
+                      <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <input id="client_id" name="client_id" autocomplete="on" value="3352aeffbd24d33f8859" class="form-control"/>
+                      </div>
+                      <label class="col-xs-6 col-sm-6 col-md-6 col-lg-6 control-label" for="client_secret">Client Secret:</label>
+                      <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <input id="client_secret" name="client_secret" autocomplete="on" value="097f832242ad371d9f012770cabdb1e6cebc433a" class="form-control"/>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button id="submit" name="submit" type="submit" class="btn btn-primary pull-right">
+              Search <i class="fa fa-search"></i>
+            </button>
+          </fieldset>
+        </form>
       </div>
+      <div class="col-xs-12 col-md-8 col-md-8 col-lg-9">
+        <div class="col-xs-6 col-md-6 col-lg-6 image-results">
+          <p class="lead">Images</p>
+          <hr />
+          <div id="image-search-results"></div>
+        </div>
+        <div class="col-xs-6 col-md-6 col-lg-6 video-results">
+          <p class="lead">Videos</p>
+          <hr />
+          <div id="video-search-results" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Detail template -->
+    <div class="detail-template modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">x</button>
+            <h3 class="lead"></h3>
 
-      <div class="media">
-        <h2>Videos</h2>
-        <div id="video-search-results"></div>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="renderServerSideInstructions()">Use this item</button>
+          </div>
+        </div>
       </div>
     </div>
   </body>
