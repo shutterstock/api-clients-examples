@@ -279,6 +279,10 @@
 
           return false;
         });
+
+        // Load results on page load
+        $('#search-form').submit();
+
       });
     </script>
 
@@ -339,7 +343,13 @@
             <div class="form-group form-group-sm row">
               <label class="col-xs-12 col-sm-6 col-md-6 col-lg-6 control-label" for="query">Search query:</label>
               <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                <input id="query" name="query" class="form-control"/>
+                <input id="query" name="query" value="restaurant" placeholder="romantic restaurant" list="query-suggestions" class="form-control"/>
+                <datalist id="query-suggestions">
+                  <option>restaurant</option>
+                  <option>spa</option>
+                  <option>vacation</option>
+                  <option>pizza</option>
+                </datalist>
               </div>
             </div>
             <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
