@@ -1,9 +1,13 @@
 # Shutterstock API
 
+> Shutterstock API Clients and Examples
+
 This is a collection of resources for the Shutterstock API.
 
  * [Clients](#clients)
  * [Examples](#examples)
+ * [Contribute](#contribute)
+ * [License](#license)
 
 ## Clients
 
@@ -35,3 +39,11 @@ Ruby
 [v2-js]: https://github.com/shutterstock/api/blob/master/examples/javascript-jquery/v2.html
 [v2-php]: https://github.com/shutterstock/api/blob/master/examples/php-curl/v2.php
 [v1-php]: https://github.com/shutterstock/api/blob/master/examples/php-curl/index.php
+
+## Contribute
+
+Please do! Take a look at our [Contributing guide](CONTRIBUTING.md).
+
+## License
+
+[MIT](LICENSE) © Shutterstock Images, LLC
